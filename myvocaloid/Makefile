@@ -1,5 +1,6 @@
 .PHONY: all clean
- 
+
+DEBUG = 1
 CXXFLAGS = -Wall -std=c++11 -pthread -D_GLIBCXX_USE_CXX11_ABI=0
 SRCDIR = ./src
 OBJDIR = ./obj
@@ -10,7 +11,7 @@ LIBDIR = ./lib
 TARGET = myvocaloid
 
 # Library Name
-LIBBASE = VocSDKLinux
+LIBBASE = VocSDKLinux avcodec avformat avutil
 
 # Sorce
 INC_FILES := $(wildcard include/*.h)
@@ -36,7 +37,7 @@ LIBDIRS = $(addprefix -L,$(LIBDIR))
 all : $(TARGET)
 
 $(TARGET) : $(OBJ_FILES) $(LIBTARGET)
-	g++ -o $@ $(OBJ_FILES) $(LIBDIRS) $(LIBS) -lpthread -Wl,--no-as-needed -ldl -Wl,-rpath=. -Wl,-rpath-link=$(LIBDIR)
+	g++ -o $@ $(OBJ_FILES) $(LIBDIRS) $(LIBS) -lpthread -Wl,--no-as-needed -ldl -Wl,-rpath=. -Wl,-rpath-link=$(LIBS)
  
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(INC_FILES)
 	@mkdir -p $(dir $@)

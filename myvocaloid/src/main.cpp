@@ -20,8 +20,137 @@
 
 #include "VLS_api.h"
 
+extern "C"
+{
+#include <libavutil/opt.h>
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswresample/swresample.h>
+}
+
 using std::cout;
 using std::endl;
+
+
+#define INBUF_SIZE 4096
+ 
+void audio_encode_example(const char *filename,const short *in_buffer,unsigned int in_buf_byte_size)
+{
+    AVCodec *codec;
+    AVCodecContext *c= NULL;
+    AVFrame *frame;
+    AVPacket pkt;
+    int i, ret;
+    int buffer_size;
+    FILE *f;
+    uint16_t *samples;
+ 
+    printf("Audio encoding\n");
+ 
+    codec = avcodec_find_encoder(AV_CODEC_ID_MP3);
+    if (!codec) {
+        fprintf(stderr, "codec not found\n");
+        exit(1);
+    }
+ 
+    c= avcodec_alloc_context3(codec);
+ 
+    c->bit_rate = 64000;
+    c->sample_rate = 44100;
+    c->channels = 1;
+    c->sample_fmt = AV_SAMPLE_FMT_S16;
+    c->channel_layout = AV_CH_LAYOUT_MONO;
+    
+    if (avcodec_open2(c, codec, NULL) < 0) {
+        fprintf(stderr, "could not open codec\n");
+        exit(1);
+    }
+ 
+    f = fopen(filename, "wb");
+     if (!f) {
+         fprintf(stderr, "could not open %s\n", filename);
+         exit(1);
+     }
+  
+    /* frame containing input raw audio */
+    frame = av_frame_alloc();
+    if (!frame) {
+        fprintf(stderr, "could not allocate audio frame\n");
+        exit(1);
+    }
+
+    frame->nb_samples     = c->frame_size;
+    frame->format         = c->sample_fmt;
+    frame->channel_layout = c->channel_layout;
+
+    /* the codec gives us the frame size, in samples,
+    * we calculate the size of the samples buffer in bytes */
+    buffer_size = av_samples_get_buffer_size(NULL, c->channels, c->frame_size,
+                                            c->sample_fmt, 0);
+    samples = (uint16_t*)av_malloc(buffer_size);
+    if (!samples) {
+        fprintf(stderr, "could not allocate %d bytes for samples buffer\n",
+                buffer_size);
+        exit(1);
+    }
+    /* setup the data pointers in the AVFrame */
+    ret = avcodec_fill_audio_frame(frame, c->channels, c->sample_fmt,
+                                (const uint8_t*)samples, buffer_size, 0);
+    if (ret < 0) {
+        fprintf(stderr, "could not setup audio frame\n");
+        exit(1);
+    }
+
+    int rsize = in_buf_byte_size % buffer_size;
+    int frames = in_buf_byte_size / buffer_size;
+    for(i=0;i<frames+1;i++) {
+        if (i == frames && rsize == 0)
+            break;
+
+        av_init_packet(&pkt);
+        pkt.data = NULL; // packet data will be allocated by the encoder
+        pkt.size = 0;
+
+        void *cframe = (char *)in_buffer+i*buffer_size;
+        if (i == frames && rsize > 0)
+        {
+            bzero(samples, buffer_size);
+            memcpy(samples, cframe, rsize);
+        }
+        else
+        {
+            memcpy(samples, cframe, buffer_size);
+        }
+
+        ret = avcodec_send_frame(c, frame);
+        if (ret < 0) {
+            fprintf(stderr, "error avcodec_send_frame\n");
+            exit(1);
+        }
+        ret = avcodec_receive_packet(c, &pkt);
+        if (ret < 0) {
+            if (ret ==  AVERROR(EAGAIN))
+            {
+                continue;
+            }
+            char errbuf[1000] = {0};
+            av_strerror(ret, errbuf, 1000);
+            fprintf(stderr, "error avcodec_receive_packet %d %s\n", ret, errbuf);
+            exit(1);
+        }
+
+        fwrite(pkt.data, 1, pkt.size, f);
+        av_packet_unref(&pkt);
+    }
+
+    fclose(f);
+  
+    av_freep(&samples);
+    av_frame_free(&frame);
+    avcodec_close(c);
+    av_free(c);
+}
+
 
 // WAVE file operation. 
 struct riff_header {
@@ -234,7 +363,9 @@ void process(const std::string &path, const std::string &text, int textSize, con
 	VLSExit(&error);
 	print(error);
 
-	saveMonoWaveFile((out + ".wav").c_str(), 44100, buffer);
+    audio_encode_example((out + ".mp3").c_str(), buffer.data(), buffer.size() * 2);
+
+	//saveMonoWaveFile((out + ".wav").c_str(), 44100, buffer);
 }
 
 
