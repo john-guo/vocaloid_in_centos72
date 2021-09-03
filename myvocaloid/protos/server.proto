@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package MyVocaloid;
+
+service Vocaloid {
+  rpc Sing (SingRequest) returns (SingReply) {}
+}
+
+message Note {
+  int32 note = 1;
+  int32 start = 2;
+  int32 duration = 3;
+}
+
+message SingRequest {
+  int32 bpm = 1;
+  string lyrics = 2;
+  repeated Note notes = 3;
+}
+
+message SingReply {
+  repeated int32 data = 1;
+}
+
