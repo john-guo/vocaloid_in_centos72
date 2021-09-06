@@ -108,17 +108,20 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::MyVocaloid::SingRequest, bpm_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::MyVocaloid::SingRequest, lyrics_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::MyVocaloid::SingRequest, notes_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::MyVocaloid::SingRequest, bank_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::MyVocaloid::SingReply, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::MyVocaloid::SingReply, result_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::MyVocaloid::SingReply, message_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::MyVocaloid::SingReply, data_),
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::MyVocaloid::Note)},
   { 8, -1, sizeof(::MyVocaloid::SingRequest)},
-  { 16, -1, sizeof(::MyVocaloid::SingReply)},
+  { 17, -1, sizeof(::MyVocaloid::SingReply)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -150,14 +153,15 @@ void AddDescriptorsImpl() {
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
       "\n\023protos/server.proto\022\nMyVocaloid\"5\n\004Not"
       "e\022\014\n\004note\030\001 \001(\005\022\r\n\005start\030\002 \001(\005\022\020\n\010durati"
-      "on\030\003 \001(\005\"K\n\013SingRequest\022\013\n\003bpm\030\001 \001(\005\022\016\n\006"
+      "on\030\003 \001(\005\"Y\n\013SingRequest\022\013\n\003bpm\030\001 \001(\005\022\016\n\006"
       "lyrics\030\002 \001(\t\022\037\n\005notes\030\003 \003(\0132\020.MyVocaloid"
-      ".Note\"\031\n\tSingReply\022\014\n\004data\030\001 \003(\0052D\n\010Voca"
-      "loid\0228\n\004Sing\022\027.MyVocaloid.SingRequest\032\025."
-      "MyVocaloid.SingReply\"\000b\006proto3"
+      ".Note\022\014\n\004bank\030\004 \001(\005\":\n\tSingReply\022\016\n\006resu"
+      "lt\030\001 \001(\005\022\017\n\007message\030\002 \001(\t\022\014\n\004data\030\003 \003(\0052"
+      "D\n\010Vocaloid\0228\n\004Sing\022\027.MyVocaloid.SingReq"
+      "uest\032\025.MyVocaloid.SingReply\"\000b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 270);
+      descriptor, 317);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "protos/server.proto", &protobuf_RegisterTypes);
 }
@@ -484,6 +488,7 @@ void SingRequest::InitAsDefaultInstance() {
 const int SingRequest::kBpmFieldNumber;
 const int SingRequest::kLyricsFieldNumber;
 const int SingRequest::kNotesFieldNumber;
+const int SingRequest::kBankFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 SingRequest::SingRequest()
@@ -502,13 +507,17 @@ SingRequest::SingRequest(const SingRequest& from)
   if (from.lyrics().size() > 0) {
     lyrics_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.lyrics_);
   }
-  bpm_ = from.bpm_;
+  ::memcpy(&bpm_, &from.bpm_,
+    static_cast<size_t>(reinterpret_cast<char*>(&bank_) -
+    reinterpret_cast<char*>(&bpm_)) + sizeof(bank_));
   // @@protoc_insertion_point(copy_constructor:MyVocaloid.SingRequest)
 }
 
 void SingRequest::SharedCtor() {
   lyrics_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  bpm_ = 0;
+  ::memset(&bpm_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&bank_) -
+      reinterpret_cast<char*>(&bpm_)) + sizeof(bank_));
 }
 
 SingRequest::~SingRequest() {
@@ -542,7 +551,9 @@ void SingRequest::Clear() {
 
   notes_.Clear();
   lyrics_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  bpm_ = 0;
+  ::memset(&bpm_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&bank_) -
+      reinterpret_cast<char*>(&bpm_)) + sizeof(bank_));
   _internal_metadata_.Clear();
 }
 
@@ -592,6 +603,20 @@ bool SingRequest::MergePartialFromCodedStream(
             static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
                 input, add_notes()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 bank = 4;
+      case 4: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(32u /* 32 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &bank_)));
         } else {
           goto handle_unusual;
         }
@@ -648,6 +673,11 @@ void SingRequest::SerializeWithCachedSizes(
       output);
   }
 
+  // int32 bank = 4;
+  if (this->bank() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->bank(), output);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -684,6 +714,11 @@ void SingRequest::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
         3, this->notes(static_cast<int>(i)), deterministic, target);
+  }
+
+  // int32 bank = 4;
+  if (this->bank() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->bank(), target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -728,6 +763,13 @@ size_t SingRequest::ByteSizeLong() const {
         this->bpm());
   }
 
+  // int32 bank = 4;
+  if (this->bank() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->bank());
+  }
+
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -763,6 +805,9 @@ void SingRequest::MergeFrom(const SingRequest& from) {
   if (from.bpm() != 0) {
     set_bpm(from.bpm());
   }
+  if (from.bank() != 0) {
+    set_bank(from.bank());
+  }
 }
 
 void SingRequest::CopyFrom(const ::google::protobuf::Message& from) {
@@ -793,6 +838,7 @@ void SingRequest::InternalSwap(SingRequest* other) {
   lyrics_.Swap(&other->lyrics_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
   swap(bpm_, other->bpm_);
+  swap(bank_, other->bank_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
 }
 
@@ -807,6 +853,8 @@ void SingRequest::InternalSwap(SingRequest* other) {
 void SingReply::InitAsDefaultInstance() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int SingReply::kResultFieldNumber;
+const int SingReply::kMessageFieldNumber;
 const int SingReply::kDataFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
@@ -822,10 +870,17 @@ SingReply::SingReply(const SingReply& from)
       _internal_metadata_(NULL),
       data_(from.data_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  message_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.message().size() > 0) {
+    message_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.message_);
+  }
+  result_ = from.result_;
   // @@protoc_insertion_point(copy_constructor:MyVocaloid.SingReply)
 }
 
 void SingReply::SharedCtor() {
+  message_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  result_ = 0;
 }
 
 SingReply::~SingReply() {
@@ -834,6 +889,7 @@ SingReply::~SingReply() {
 }
 
 void SingReply::SharedDtor() {
+  message_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 
 void SingReply::SetCachedSize(int size) const {
@@ -857,6 +913,8 @@ void SingReply::Clear() {
   (void) cached_has_bits;
 
   data_.Clear();
+  message_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  result_ = 0;
   _internal_metadata_.Clear();
 }
 
@@ -870,19 +928,49 @@ bool SingReply::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated int32 data = 1;
+      // int32 result = 1;
       case 1: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
+            static_cast< ::google::protobuf::uint8>(8u /* 8 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &result_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // string message = 2;
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_message()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->message().data(), static_cast<int>(this->message().length()),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "MyVocaloid.SingReply.message"));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // repeated int32 data = 3;
+      case 3: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
                  input, this->mutable_data())));
         } else if (
             static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(8u /* 8 & 0xFF */)) {
+            static_cast< ::google::protobuf::uint8>(24u /* 24 & 0xFF */)) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
                    ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
-                 1, 10u, input, this->mutable_data())));
+                 1, 26u, input, this->mutable_data())));
         } else {
           goto handle_unusual;
         }
@@ -915,9 +1003,24 @@ void SingReply::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated int32 data = 1;
+  // int32 result = 1;
+  if (this->result() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->result(), output);
+  }
+
+  // string message = 2;
+  if (this->message().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->message().data(), static_cast<int>(this->message().length()),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "MyVocaloid.SingReply.message");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      2, this->message(), output);
+  }
+
+  // repeated int32 data = 3;
   if (this->data_size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteTag(1, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    ::google::protobuf::internal::WireFormatLite::WriteTag(3, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
     output->WriteVarint32(static_cast< ::google::protobuf::uint32>(
         _data_cached_byte_size_));
   }
@@ -940,10 +1043,26 @@ void SingReply::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated int32 data = 1;
+  // int32 result = 1;
+  if (this->result() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->result(), target);
+  }
+
+  // string message = 2;
+  if (this->message().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->message().data(), static_cast<int>(this->message().length()),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "MyVocaloid.SingReply.message");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        2, this->message(), target);
+  }
+
+  // repeated int32 data = 3;
   if (this->data_size() > 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
-      1,
+      3,
       ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
       target);
     target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
@@ -970,7 +1089,7 @@ size_t SingReply::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
-  // repeated int32 data = 1;
+  // repeated int32 data = 3;
   {
     size_t data_size = ::google::protobuf::internal::WireFormatLite::
       Int32Size(this->data_);
@@ -984,6 +1103,20 @@ size_t SingReply::ByteSizeLong() const {
     _data_cached_byte_size_ = cached_size;
     GOOGLE_SAFE_CONCURRENT_WRITES_END();
     total_size += data_size;
+  }
+
+  // string message = 2;
+  if (this->message().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->message());
+  }
+
+  // int32 result = 1;
+  if (this->result() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->result());
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -1014,6 +1147,13 @@ void SingReply::MergeFrom(const SingReply& from) {
   (void) cached_has_bits;
 
   data_.MergeFrom(from.data_);
+  if (from.message().size() > 0) {
+
+    message_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.message_);
+  }
+  if (from.result() != 0) {
+    set_result(from.result());
+  }
 }
 
 void SingReply::CopyFrom(const ::google::protobuf::Message& from) {
@@ -1041,6 +1181,9 @@ void SingReply::Swap(SingReply* other) {
 void SingReply::InternalSwap(SingReply* other) {
   using std::swap;
   data_.InternalSwap(&other->data_);
+  message_.Swap(&other->message_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  swap(result_, other->result_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
 }
 

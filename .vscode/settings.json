@@ -21,6 +21,7 @@
         "/usr/include/x86_64-linux-gnu"
     ],
     "C_Cpp.default.includePath": [
+        "/usr/local/include/",
         "${workspaceFolder}/myvocaloid/include"
     ],
     "C_Cpp.default.compilerPath": "/usr/bin/g++",

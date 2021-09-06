@@ -303,6 +303,12 @@ class SingRequest : public ::google::protobuf::Message /* @@protoc_insertion_poi
   ::google::protobuf::int32 bpm() const;
   void set_bpm(::google::protobuf::int32 value);
 
+  // int32 bank = 4;
+  void clear_bank();
+  static const int kBankFieldNumber = 4;
+  ::google::protobuf::int32 bank() const;
+  void set_bank(::google::protobuf::int32 value);
+
   // @@protoc_insertion_point(class_scope:MyVocaloid.SingRequest)
  private:
 
@@ -310,6 +316,7 @@ class SingRequest : public ::google::protobuf::Message /* @@protoc_insertion_poi
   ::google::protobuf::RepeatedPtrField< ::MyVocaloid::Note > notes_;
   ::google::protobuf::internal::ArenaStringPtr lyrics_;
   ::google::protobuf::int32 bpm_;
+  ::google::protobuf::int32 bank_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   friend struct ::protobuf_protos_2fserver_2eproto::TableStruct;
 };
@@ -402,10 +409,10 @@ class SingReply : public ::google::protobuf::Message /* @@protoc_insertion_point
 
   // accessors -------------------------------------------------------
 
-  // repeated int32 data = 1;
+  // repeated int32 data = 3;
   int data_size() const;
   void clear_data();
-  static const int kDataFieldNumber = 1;
+  static const int kDataFieldNumber = 3;
   ::google::protobuf::int32 data(int index) const;
   void set_data(int index, ::google::protobuf::int32 value);
   void add_data(::google::protobuf::int32 value);
@@ -414,12 +421,34 @@ class SingReply : public ::google::protobuf::Message /* @@protoc_insertion_point
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
       mutable_data();
 
+  // string message = 2;
+  void clear_message();
+  static const int kMessageFieldNumber = 2;
+  const ::std::string& message() const;
+  void set_message(const ::std::string& value);
+  #if LANG_CXX11
+  void set_message(::std::string&& value);
+  #endif
+  void set_message(const char* value);
+  void set_message(const char* value, size_t size);
+  ::std::string* mutable_message();
+  ::std::string* release_message();
+  void set_allocated_message(::std::string* message);
+
+  // int32 result = 1;
+  void clear_result();
+  static const int kResultFieldNumber = 1;
+  ::google::protobuf::int32 result() const;
+  void set_result(::google::protobuf::int32 value);
+
   // @@protoc_insertion_point(class_scope:MyVocaloid.SingReply)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::RepeatedField< ::google::protobuf::int32 > data_;
   mutable int _data_cached_byte_size_;
+  ::google::protobuf::internal::ArenaStringPtr message_;
+  ::google::protobuf::int32 result_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   friend struct ::protobuf_protos_2fserver_2eproto::TableStruct;
 };
@@ -577,11 +606,92 @@ SingRequest::notes() const {
   return notes_;
 }
 
+// int32 bank = 4;
+inline void SingRequest::clear_bank() {
+  bank_ = 0;
+}
+inline ::google::protobuf::int32 SingRequest::bank() const {
+  // @@protoc_insertion_point(field_get:MyVocaloid.SingRequest.bank)
+  return bank_;
+}
+inline void SingRequest::set_bank(::google::protobuf::int32 value) {
+  
+  bank_ = value;
+  // @@protoc_insertion_point(field_set:MyVocaloid.SingRequest.bank)
+}
+
 // -------------------------------------------------------------------
 
 // SingReply
 
-// repeated int32 data = 1;
+// int32 result = 1;
+inline void SingReply::clear_result() {
+  result_ = 0;
+}
+inline ::google::protobuf::int32 SingReply::result() const {
+  // @@protoc_insertion_point(field_get:MyVocaloid.SingReply.result)
+  return result_;
+}
+inline void SingReply::set_result(::google::protobuf::int32 value) {
+  
+  result_ = value;
+  // @@protoc_insertion_point(field_set:MyVocaloid.SingReply.result)
+}
+
+// string message = 2;
+inline void SingReply::clear_message() {
+  message_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& SingReply::message() const {
+  // @@protoc_insertion_point(field_get:MyVocaloid.SingReply.message)
+  return message_.GetNoArena();
+}
+inline void SingReply::set_message(const ::std::string& value) {
+  
+  message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:MyVocaloid.SingReply.message)
+}
+#if LANG_CXX11
+inline void SingReply::set_message(::std::string&& value) {
+  
+  message_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:MyVocaloid.SingReply.message)
+}
+#endif
+inline void SingReply::set_message(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:MyVocaloid.SingReply.message)
+}
+inline void SingReply::set_message(const char* value, size_t size) {
+  
+  message_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:MyVocaloid.SingReply.message)
+}
+inline ::std::string* SingReply::mutable_message() {
+  
+  // @@protoc_insertion_point(field_mutable:MyVocaloid.SingReply.message)
+  return message_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* SingReply::release_message() {
+  // @@protoc_insertion_point(field_release:MyVocaloid.SingReply.message)
+  
+  return message_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void SingReply::set_allocated_message(::std::string* message) {
+  if (message != NULL) {
+    
+  } else {
+    
+  }
+  message_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), message);
+  // @@protoc_insertion_point(field_set_allocated:MyVocaloid.SingReply.message)
+}
+
+// repeated int32 data = 3;
 inline int SingReply::data_size() const {
   return data_.size();
 }

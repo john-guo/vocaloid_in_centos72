@@ -16,9 +16,12 @@ message SingRequest {
   int32 bpm = 1;
   string lyrics = 2;
   repeated Note notes = 3;
+  int32 bank = 4;
 }
 
 message SingReply {
-  repeated int32 data = 1;
+  int32 result = 1;
+  string message = 2;
+  repeated int32 data = 3;
 }
 
