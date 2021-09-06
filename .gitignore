@@ -33,3 +33,7 @@
 obj/
 myvocaloid/myvocaloid
 myvocaloid/server
+
+WinVocaloid/bin/
+WinVocaloid/.vs/
+WinVocaloid/packages/

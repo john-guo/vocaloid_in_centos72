@@ -77,7 +77,12 @@ VLS_Error VLS_process(
 
 	data_size = buffer.size();
 	*data = new int16_t[data_size];
-	memcpy(data, buffer.data(), sizeof(int16_t) * data_size);
+	if (*data == nullptr)
+	{
+		cout << "out of memory" << endl;
+		return verror;
+	}
+	memcpy(*data, buffer.data(), sizeof(int16_t) * data_size);
 
     return verror;
 }
