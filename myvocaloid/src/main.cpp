@@ -372,6 +372,71 @@ void process(const std::string &path, const std::string &text, int textSize, con
 }
 
 
+void test(const std::string &path, const std::string &text, int textSize, const std::string &music, const std::string &out) {
+	cout << "___" << __FUNCTION__ << "___" << endl;
+
+	using namespace Yamaha::VOCALOID::VLSModule;
+	VLSError error;
+
+	// First VLSInit() need to be called.
+	VLSInit(path, &error);
+	print(error);
+
+	// set notes.
+	std::vector<VLSNote> notes;
+
+	int noteCount = music.length();
+	const int size = 3;
+	//const int noteNumber[] = { 60, 62, 64, 65, 67, 69, 71, 72 };
+	//const int noteNumber[] = { 69, 67, 64, 62, 60, 62, 60, 57, 55, 54 };
+	//int noteCount = sizeof(noteNumber) / sizeof(noteNumber[0]);
+	int time = 0;
+	int noteLength = 1000;
+	for (int i = 0; i < size; ++i) {
+		// No need to set note's lyric and phonetic.
+		VLSNote note{
+			64, time, noteLength, "", ""
+		};
+		notes.push_back(note);
+
+		time += noteLength;
+	}
+
+	// pitchbend can be empty.
+	std::vector<VLSPitchBend> pitchBends;
+	// vibrato can be empty.
+	std::vector<VLSVibrato> vibratos;
+
+	int32_t voiceBankID = 0;    // Tianyi.
+	int32_t tempo = 6000;      // 120.00 BPM.
+
+	std::string lyrics = "ni hao ma";
+
+	std::cout << tempo << " " << lyrics << std::endl;
+	for (auto &n : notes)
+	{
+		std::cout << n.noteNumber << " " << n.time << " " << n.length << std::endl;
+	}
+
+	// set sequence data and get a sequence handle.
+	VLSSequenceHandle handle = VLSSetSequenceData(voiceBankID, tempo, lyrics, notes, pitchBends, vibratos, &error);
+	print(error);
+
+	std::vector<int16_t> buffer;
+
+	// use handle returned VLSSetSequenceData().
+	VLSRenderAudio(handle, &buffer, nullptr, &error);
+	print(error);
+
+    std::cout << "size: " << buffer.size() << std::endl; 
+
+	VLSExit(&error);
+	print(error);
+
+    audio_encode_example((out + ".mp3").c_str(), buffer.data(), buffer.size() * sizeof(int16_t));
+}
+
+
 
 int main(int argc, char* argv[])
 {
@@ -389,5 +454,6 @@ int main(int argc, char* argv[])
     std::string out(argv[4]);
 	
 	process(path, text, size, sequence, out);
+	//test(path, text, size, sequence, out);
     return 0;
 }

@@ -24,6 +24,7 @@
 #include <grpcpp/server.h>
 #include <grpcpp/server_builder.h>
 #include <grpcpp/server_context.h>
+#include <grpcpp/resource_quota.h>
 
 #include "protos/server.pb.h"
 #include "protos/server.grpc.pb.h"
@@ -33,6 +34,7 @@
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
+using grpc::ServerWriter;
 using grpc::Status;
 using MyVocaloid::Note;
 using MyVocaloid::SingRequest;
@@ -53,10 +55,14 @@ std::string getexepath()
   return std::string( result, (count > 0) ? count : 0 );
 }
 
+#define CHUNK_SIZE (int)0x10000
+
 class VocaloidService final : public Vocaloid::Service 
 {
-    Status Sing(ServerContext* context, const SingRequest* request, SingReply* reply) override 
+    Status Sing(ServerContext* context, const SingRequest* request, ServerWriter<SingReply> *writer) override 
     {
+        std::cout << "SING" << std::endl;
+
         int bank = request->bank();
         int bpm = request->bpm();
         std::string lyrics = request->lyrics();
@@ -73,10 +79,27 @@ class VocaloidService final : public Vocaloid::Service
         int16_t *data;
         int data_size;
         auto ret = VLS_process(&data, data_size, lyrics.c_str(), vnotes, notes_size, bpm, bank);
+        SingReply reply;
+        auto *header = reply.mutable_header();
+        header->set_result(ret.result);
+        header->set_message(ret.message);
+        writer->Write(reply);
 
-        reply->set_result(ret.result);
-        reply->set_message(ret.message);
-        *reply->mutable_data() = {data, data + data_size};
+        auto *chunk = reply.mutable_chunk();
+
+        int bytesize = data_size * sizeof(int16_t);
+        char *bytedata = (char*)data;
+        int offset = 0;
+        while (offset < bytesize)
+        {
+            int count = std::min(CHUNK_SIZE, bytesize - offset);
+            chunk->set_data(bytedata + offset, count);
+
+            std::cout << "Write Offset " << offset << " Count " << count << std::endl;
+
+            writer->Write(reply);
+            offset += CHUNK_SIZE;
+        } 
 
         delete[] vnotes;
         delete[] data;
@@ -95,6 +118,11 @@ void RunServer(const std::string& path)
     ServerBuilder builder;
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
     builder.RegisterService(&service);
+
+    grpc::ResourceQuota rq;
+    rq.SetMaxThreads(2);
+    builder.SetResourceQuota(rq);
+
     std::unique_ptr<Server> server(builder.BuildAndStart());
     std::cout << "Server listening on " << server_address << std::endl;
     server->Wait();

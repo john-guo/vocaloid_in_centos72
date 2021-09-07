@@ -63,6 +63,12 @@ VLS_Error VLS_process(
 		notes.push_back({ vnotes[i].note, vnotes[i].start, vnotes[i].duration, "", "" });
 	} 
 
+	std::cout << tempo << " " << lyrics << std::endl;
+	for (auto &n : notes)
+	{
+		std::cout << n.noteNumber << " " << n.time << " " << n.length << std::endl;
+	}
+
 	// set sequence data and get a sequence handle.
 	VLSSequenceHandle handle = VLSSetSequenceData(voiceBankID, tempo, lyrics, notes, pitchBends, vibratos, &error);
 	CONV_ERROR(error, verror);
@@ -76,12 +82,16 @@ VLS_Error VLS_process(
     CHECK_ERROR(verror);
 
 	data_size = buffer.size();
+
+	std::cout << "size: " << buffer.size() << std::endl; 
+
 	*data = new int16_t[data_size];
 	if (*data == nullptr)
 	{
 		cout << "out of memory" << endl;
 		return verror;
 	}
+
 	memcpy(*data, buffer.data(), sizeof(int16_t) * data_size);
 
     return verror;

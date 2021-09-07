@@ -28,40 +28,36 @@ std::unique_ptr< Vocaloid::Stub> Vocaloid::NewStub(const std::shared_ptr< ::grpc
 }
 
 Vocaloid::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel)
-  : channel_(channel), rpcmethod_Sing_(Vocaloid_method_names[0], ::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  : channel_(channel), rpcmethod_Sing_(Vocaloid_method_names[0], ::grpc::internal::RpcMethod::SERVER_STREAMING, channel)
   {}
 
-::grpc::Status Vocaloid::Stub::Sing(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::MyVocaloid::SingReply* response) {
-  return ::grpc::internal::BlockingUnaryCall(channel_.get(), rpcmethod_Sing_, context, request, response);
+::grpc::ClientReader< ::MyVocaloid::SingReply>* Vocaloid::Stub::SingRaw(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request) {
+  return ::grpc::internal::ClientReaderFactory< ::MyVocaloid::SingReply>::Create(channel_.get(), rpcmethod_Sing_, context, request);
 }
 
-void Vocaloid::Stub::experimental_async::Sing(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest* request, ::MyVocaloid::SingReply* response, std::function<void(::grpc::Status)> f) {
-  return ::grpc::internal::CallbackUnaryCall(stub_->channel_.get(), stub_->rpcmethod_Sing_, context, request, response, std::move(f));
+::grpc::ClientAsyncReader< ::MyVocaloid::SingReply>* Vocaloid::Stub::AsyncSingRaw(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+  return ::grpc::internal::ClientAsyncReaderFactory< ::MyVocaloid::SingReply>::Create(channel_.get(), cq, rpcmethod_Sing_, context, request, true, tag);
 }
 
-::grpc::ClientAsyncResponseReader< ::MyVocaloid::SingReply>* Vocaloid::Stub::AsyncSingRaw(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderFactory< ::MyVocaloid::SingReply>::Create(channel_.get(), cq, rpcmethod_Sing_, context, request, true);
-}
-
-::grpc::ClientAsyncResponseReader< ::MyVocaloid::SingReply>* Vocaloid::Stub::PrepareAsyncSingRaw(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderFactory< ::MyVocaloid::SingReply>::Create(channel_.get(), cq, rpcmethod_Sing_, context, request, false);
+::grpc::ClientAsyncReader< ::MyVocaloid::SingReply>* Vocaloid::Stub::PrepareAsyncSingRaw(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncReaderFactory< ::MyVocaloid::SingReply>::Create(channel_.get(), cq, rpcmethod_Sing_, context, request, false, nullptr);
 }
 
 Vocaloid::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       Vocaloid_method_names[0],
-      ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< Vocaloid::Service, ::MyVocaloid::SingRequest, ::MyVocaloid::SingReply>(
+      ::grpc::internal::RpcMethod::SERVER_STREAMING,
+      new ::grpc::internal::ServerStreamingHandler< Vocaloid::Service, ::MyVocaloid::SingRequest, ::MyVocaloid::SingReply>(
           std::mem_fn(&Vocaloid::Service::Sing), this)));
 }
 
 Vocaloid::Service::~Service() {
 }
 
-::grpc::Status Vocaloid::Service::Sing(::grpc::ServerContext* context, const ::MyVocaloid::SingRequest* request, ::MyVocaloid::SingReply* response) {
+::grpc::Status Vocaloid::Service::Sing(::grpc::ServerContext* context, const ::MyVocaloid::SingRequest* request, ::grpc::ServerWriter< ::MyVocaloid::SingReply>* writer) {
   (void) context;
   (void) request;
-  (void) response;
+  (void) writer;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 

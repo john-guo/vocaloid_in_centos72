@@ -3,7 +3,7 @@ syntax = "proto3";
 package MyVocaloid;
 
 service Vocaloid {
-  rpc Sing (SingRequest) returns (SingReply) {}
+  rpc Sing (SingRequest) returns (stream SingReply) {}
 }
 
 message Note {
@@ -19,9 +19,19 @@ message SingRequest {
   int32 bank = 4;
 }
 
-message SingReply {
+message ReplyHeader {
   int32 result = 1;
   string message = 2;
-  repeated int32 data = 3;
+}
+
+message ReplyChunk {
+  bytes data = 1;
+}
+
+message SingReply {
+  oneof ReplyData {
+	ReplyHeader header = 1;
+	ReplyChunk chunk = 2;
+  }
 }
 

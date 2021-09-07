@@ -35,37 +35,40 @@ class Vocaloid final {
   class StubInterface {
    public:
     virtual ~StubInterface() {}
-    virtual ::grpc::Status Sing(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::MyVocaloid::SingReply* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::MyVocaloid::SingReply>> AsyncSing(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::MyVocaloid::SingReply>>(AsyncSingRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientReaderInterface< ::MyVocaloid::SingReply>> Sing(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request) {
+      return std::unique_ptr< ::grpc::ClientReaderInterface< ::MyVocaloid::SingReply>>(SingRaw(context, request));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::MyVocaloid::SingReply>> PrepareAsyncSing(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::MyVocaloid::SingReply>>(PrepareAsyncSingRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::MyVocaloid::SingReply>> AsyncSing(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+      return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::MyVocaloid::SingReply>>(AsyncSingRaw(context, request, cq, tag));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::MyVocaloid::SingReply>> PrepareAsyncSing(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::MyVocaloid::SingReply>>(PrepareAsyncSingRaw(context, request, cq));
     }
     class experimental_async_interface {
      public:
       virtual ~experimental_async_interface() {}
-      virtual void Sing(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest* request, ::MyVocaloid::SingReply* response, std::function<void(::grpc::Status)>) = 0;
     };
     virtual class experimental_async_interface* experimental_async() { return nullptr; }
   private:
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::MyVocaloid::SingReply>* AsyncSingRaw(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::MyVocaloid::SingReply>* PrepareAsyncSingRaw(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientReaderInterface< ::MyVocaloid::SingReply>* SingRaw(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request) = 0;
+    virtual ::grpc::ClientAsyncReaderInterface< ::MyVocaloid::SingReply>* AsyncSingRaw(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq, void* tag) = 0;
+    virtual ::grpc::ClientAsyncReaderInterface< ::MyVocaloid::SingReply>* PrepareAsyncSingRaw(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
     Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel);
-    ::grpc::Status Sing(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::MyVocaloid::SingReply* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::MyVocaloid::SingReply>> AsyncSing(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::MyVocaloid::SingReply>>(AsyncSingRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientReader< ::MyVocaloid::SingReply>> Sing(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request) {
+      return std::unique_ptr< ::grpc::ClientReader< ::MyVocaloid::SingReply>>(SingRaw(context, request));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::MyVocaloid::SingReply>> PrepareAsyncSing(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::MyVocaloid::SingReply>>(PrepareAsyncSingRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncReader< ::MyVocaloid::SingReply>> AsyncSing(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq, void* tag) {
+      return std::unique_ptr< ::grpc::ClientAsyncReader< ::MyVocaloid::SingReply>>(AsyncSingRaw(context, request, cq, tag));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncReader< ::MyVocaloid::SingReply>> PrepareAsyncSing(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncReader< ::MyVocaloid::SingReply>>(PrepareAsyncSingRaw(context, request, cq));
     }
     class experimental_async final :
       public StubInterface::experimental_async_interface {
      public:
-      void Sing(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest* request, ::MyVocaloid::SingReply* response, std::function<void(::grpc::Status)>) override;
      private:
       friend class Stub;
       explicit experimental_async(Stub* stub): stub_(stub) { }
@@ -77,8 +80,9 @@ class Vocaloid final {
    private:
     std::shared_ptr< ::grpc::ChannelInterface> channel_;
     class experimental_async async_stub_{this};
-    ::grpc::ClientAsyncResponseReader< ::MyVocaloid::SingReply>* AsyncSingRaw(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::MyVocaloid::SingReply>* PrepareAsyncSingRaw(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientReader< ::MyVocaloid::SingReply>* SingRaw(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request) override;
+    ::grpc::ClientAsyncReader< ::MyVocaloid::SingReply>* AsyncSingRaw(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq, void* tag) override;
+    ::grpc::ClientAsyncReader< ::MyVocaloid::SingReply>* PrepareAsyncSingRaw(::grpc::ClientContext* context, const ::MyVocaloid::SingRequest& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_Sing_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
@@ -87,7 +91,7 @@ class Vocaloid final {
    public:
     Service();
     virtual ~Service();
-    virtual ::grpc::Status Sing(::grpc::ServerContext* context, const ::MyVocaloid::SingRequest* request, ::MyVocaloid::SingReply* response);
+    virtual ::grpc::Status Sing(::grpc::ServerContext* context, const ::MyVocaloid::SingRequest* request, ::grpc::ServerWriter< ::MyVocaloid::SingReply>* writer);
   };
   template <class BaseClass>
   class WithAsyncMethod_Sing : public BaseClass {
@@ -101,12 +105,12 @@ class Vocaloid final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Sing(::grpc::ServerContext* context, const ::MyVocaloid::SingRequest* request, ::MyVocaloid::SingReply* response) override {
+    ::grpc::Status Sing(::grpc::ServerContext* context, const ::MyVocaloid::SingRequest* request, ::grpc::ServerWriter< ::MyVocaloid::SingReply>* writer) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestSing(::grpc::ServerContext* context, ::MyVocaloid::SingRequest* request, ::grpc::ServerAsyncResponseWriter< ::MyVocaloid::SingReply>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(0, context, request, response, new_call_cq, notification_cq, tag);
+    void RequestSing(::grpc::ServerContext* context, ::MyVocaloid::SingRequest* request, ::grpc::ServerAsyncWriter< ::MyVocaloid::SingReply>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncServerStreaming(0, context, request, writer, new_call_cq, notification_cq, tag);
     }
   };
   typedef WithAsyncMethod_Sing<Service > AsyncService;
@@ -122,7 +126,7 @@ class Vocaloid final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Sing(::grpc::ServerContext* context, const ::MyVocaloid::SingRequest* request, ::MyVocaloid::SingReply* response) override {
+    ::grpc::Status Sing(::grpc::ServerContext* context, const ::MyVocaloid::SingRequest* request, ::grpc::ServerWriter< ::MyVocaloid::SingReply>* writer) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -139,37 +143,37 @@ class Vocaloid final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Sing(::grpc::ServerContext* context, const ::MyVocaloid::SingRequest* request, ::MyVocaloid::SingReply* response) override {
+    ::grpc::Status Sing(::grpc::ServerContext* context, const ::MyVocaloid::SingRequest* request, ::grpc::ServerWriter< ::MyVocaloid::SingReply>* writer) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestSing(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncUnary(0, context, request, response, new_call_cq, notification_cq, tag);
+    void RequestSing(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncWriter< ::grpc::ByteBuffer>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncServerStreaming(0, context, request, writer, new_call_cq, notification_cq, tag);
     }
   };
+  typedef Service StreamedUnaryService;
   template <class BaseClass>
-  class WithStreamedUnaryMethod_Sing : public BaseClass {
+  class WithSplitStreamingMethod_Sing : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service *service) {}
    public:
-    WithStreamedUnaryMethod_Sing() {
+    WithSplitStreamingMethod_Sing() {
       ::grpc::Service::MarkMethodStreamed(0,
-        new ::grpc::internal::StreamedUnaryHandler< ::MyVocaloid::SingRequest, ::MyVocaloid::SingReply>(std::bind(&WithStreamedUnaryMethod_Sing<BaseClass>::StreamedSing, this, std::placeholders::_1, std::placeholders::_2)));
+        new ::grpc::internal::SplitServerStreamingHandler< ::MyVocaloid::SingRequest, ::MyVocaloid::SingReply>(std::bind(&WithSplitStreamingMethod_Sing<BaseClass>::StreamedSing, this, std::placeholders::_1, std::placeholders::_2)));
     }
-    ~WithStreamedUnaryMethod_Sing() override {
+    ~WithSplitStreamingMethod_Sing() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status Sing(::grpc::ServerContext* context, const ::MyVocaloid::SingRequest* request, ::MyVocaloid::SingReply* response) override {
+    ::grpc::Status Sing(::grpc::ServerContext* context, const ::MyVocaloid::SingRequest* request, ::grpc::ServerWriter< ::MyVocaloid::SingReply>* writer) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedSing(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::MyVocaloid::SingRequest,::MyVocaloid::SingReply>* server_unary_streamer) = 0;
+    // replace default version of method with split streamed
+    virtual ::grpc::Status StreamedSing(::grpc::ServerContext* context, ::grpc::ServerSplitStreamer< ::MyVocaloid::SingRequest,::MyVocaloid::SingReply>* server_split_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_Sing<Service > StreamedUnaryService;
-  typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_Sing<Service > StreamedService;
+  typedef WithSplitStreamingMethod_Sing<Service > SplitStreamedService;
+  typedef WithSplitStreamingMethod_Sing<Service > StreamedService;
 };
 
 }  // namespace MyVocaloid
