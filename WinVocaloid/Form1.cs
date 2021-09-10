@@ -16,6 +16,7 @@ using NAudio.MediaFoundation;
 using System.IO;
 using System.Threading;
 using Google.Protobuf;
+using Microsoft.International.Converters.PinYinConverter;
 
 namespace WinVocaloid
 {
@@ -109,15 +110,27 @@ namespace WinVocaloid
             return ip;
         }
 
+        private void toPinYin()
+        {
+            foreach (var ch in textBox2.Text)
+            {
+            }
+        }
+
+
         private async void button1_Click(object sender, EventArgs e)
         {
+            int bpm = Convert.ToInt32(textBox1.Text) * 100;
+
+            
+
             var ip = GetWslIpAddress();
             var channel = new Channel($"{ip}:50051", ChannelCredentials.Insecure);
             var client = new Vocaloid.VocaloidClient(channel);
-            var request = new SingRequest { Bank = 0, Bpm = 6000, Lyrics = "ni hao ma" };
+            var request = new SingRequest { Bank = 0, Bpm = bpm, Lyrics = "ni ni ni" };
             request.Notes.Add(new Note { Note_ = 64, Start = 0, Duration = 1000 });
-            request.Notes.Add(new Note { Note_ = 64, Start = 1000, Duration = 1000 });
-            request.Notes.Add(new Note { Note_ = 64, Start = 2000, Duration = 1000 });
+            request.Notes.Add(new Note { Note_ = 66, Start = 1000, Duration = 1000 });
+            request.Notes.Add(new Note { Note_ = 68, Start = 2000, Duration = 1000 });
             using (var call = client.Sing(request))
             {
                 var response = call.ResponseStream;
@@ -146,7 +159,7 @@ namespace WinVocaloid
                             ms.Seek(0, SeekOrigin.Begin);
                             using (var stream = new RawSourceWaveStream(ms, new WaveFormat(44100, 16, 1)))
                             {
-                                MediaFoundationEncoder.EncodeToMp3(stream, "test.mp3", 64000);
+                                MediaFoundationEncoder.EncodeToMp3(stream, "test.mp3");
                             }
                         }
 
