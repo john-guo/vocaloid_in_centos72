@@ -29,7 +29,15 @@ namespace WinVocaloid
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            this.pinyinChoice = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.SuspendLayout();
+            // 
+            // pinyinChoice
+            // 
+            this.pinyinChoice.Name = "pinyinChoice";
+            this.pinyinChoice.Size = new System.Drawing.Size(181, 26);
+            this.pinyinChoice.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.pinyinChoice_ItemClicked);
             // 
             // LyricsBox
             // 
@@ -39,10 +47,13 @@ namespace WinVocaloid
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Name = "LyricsBox";
             this.Size = new System.Drawing.Size(395, 348);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LyricsBox_MouseDown);
             this.ResumeLayout(false);
 
         }
 
         #endregion
+
+        private System.Windows.Forms.ContextMenuStrip pinyinChoice;
     }
 }

@@ -52,6 +52,7 @@ namespace WinVocaloid
 
         public Font PinyinFont { get; set; }
         private readonly float LineHeight;
+        private int VisualLines;
 
         private Timer caretTimer = new Timer();
         private Graphics g;
@@ -134,6 +135,8 @@ namespace WinVocaloid
             public int Width { get; private set; }
             public int Height { get; private set; }
             public float LineHeight { get; private set; }
+            private int visualCount;
+            private int StartLine { get; set; }
 
             public LinesEditor(int width, int height, float lineHeight)
             {
@@ -143,6 +146,17 @@ namespace WinVocaloid
                 Width = width;
                 Height = height;
                 LineHeight = lineHeight;
+                visualCount = Height / (int)lineHeight;
+                StartLine = 0;
+            }
+
+            public List<List<LinkedListNode<CharPos<T>>>> VisualLines
+            { 
+                get
+                {
+                    var count = Math.Min(Lines.Count - StartLine, visualCount) ;
+                    return Lines.GetRange(StartLine, count);
+                }
             }
 
             public void Append(T ch)
@@ -153,6 +167,8 @@ namespace WinVocaloid
                     _current = _text.AddFirst(new CharPos<T>(ch));
 
                 GenLines();
+
+                Scroll(GetPostion().Row);
             }
 
             private void GenLines()
@@ -221,6 +237,13 @@ namespace WinVocaloid
 
             public void Delete(bool previous = true)
             {
+                if (_current == null && !previous)
+                {
+                    if (_text.Count > 0)
+                        _text.RemoveFirst();
+                    GenLines();
+                    return;
+                }
                 if (_current == null)
                     return;
 
@@ -245,18 +268,20 @@ namespace WinVocaloid
                 {
                     case Keys.Left:
                         _current = _current?.Previous;
+                        Scroll(GetPostion().Row);
                         break;
                     case Keys.Right:
                         if (_current == null)
                             _current = _text.First;
                         else if (_current?.Next != null)
                             _current = _current.Next;
+                        Scroll(GetPostion().Row);
                         break;
                     case Keys.Up:
                         {
                             var p = GetPostion();
-                            int row = p.Y;
-                            int col = p.X;
+                            int row = p.Row;
+                            int col = p.Column;
                             if (row > 0)
                             {
                                 int count = _lines[row - 1].Count;
@@ -269,16 +294,29 @@ namespace WinVocaloid
                                 }
                                 else
                                 {
-                                    _current = _lines[row - 1][Math.Min(col, count - 1)];
+                                    if (count == 0)
+                                    {
+                                        if (row - 2 >= 0)
+                                            _current = _lines[row - 2].LastOrDefault();
+                                        else
+                                            _current = null;
+                                    }
+                                    else
+                                    {
+                                        _current = _lines[row - 1][Math.Min(col - 1, count - 1)];
+                                        if (_current.Value.Holder.Char == 13)
+                                            _current = _current.Previous;
+                                    }
                                 }
                             }
+                            Scroll(GetPostion().Row);
                         }
                         break;
                     case Keys.Down:
                         {
                             var p = GetPostion();
-                            int row = p.Y;
-                            int col = p.X;
+                            int row = p.Row;
+                            int col = p.Column;
                             if (row < _lines.Count - 1)
                             {
                                 int count = _lines[row + 1].Count;
@@ -289,9 +327,12 @@ namespace WinVocaloid
                                 }
                                 else
                                 {
-                                    _current = _lines[row + 1][Math.Min(col, count - 1)];
+                                    _current = _lines[row + 1][Math.Min(col-1, count - 1)];
+                                    if (_current.Value.Holder.Char == 13)
+                                        _current = _current.Previous;
                                 }
                             }
+                            Scroll(GetPostion().Row);
                         }
                         break;
                     case Keys.Delete:
@@ -300,79 +341,125 @@ namespace WinVocaloid
                 }
             }
 
-            public Point GetPostion()
+            private void Scroll(int line)
             {
-                int x = -1;
-                int y = 0;
-                if (_current == null)
-                    return new Point(x, y);
-
-                var last = _current.Value;
-                x = last.Column;
-                y = last.Line;
-
-                if (last.Holder.Char == 13)
+                if (line < StartLine)
                 {
-                    x = -1;
-                    y++;
+                    StartLine = _current?.Value.Line ?? 0;
                 }
-                else
+                else if (line >= StartLine + visualCount)
                 {
-                    var next = _current?.Next?.Value;
-                    if (next != null && next.Line > last.Line)
-                    {
-                        x = -1;
-                        y++;
-                    }
+                    StartLine = line - visualCount + 1;
                 }
-
-                return new Point(x, y);
             }
 
-            public Point GetCaret(int offset)
+            public struct CurrentPos
             {
-                int x = 0;
-                int y = offset;
-                if (_current == null)
+                public int X;
+                public int Y;
+                public int Row;
+                public int Column;
+            }
+
+            private Point GetVisualPoint(int x, int y)
+            {
+                var first = VisualLines.FirstOrDefault()?.FirstOrDefault()?.Value;
+                if (first == null)
+                {
                     return new Point(x, y);
+                }
+
+                return new Point(x, y - first.Y);
+            }
+
+            private Point GetRealPoint(int x, int y)
+            {
+                var first = VisualLines.FirstOrDefault()?.FirstOrDefault()?.Value;
+                if (first == null)
+                {
+                    return new Point(x, y);
+                }
+
+                return new Point(x, y + first.Y);
+            }
+
+            public CurrentPos GetPostion()
+            {
+                CurrentPos pos = new CurrentPos()
+                {
+                    X = 0,
+                    Y = 0,
+                    Column = -1,
+                    Row = 0
+                };
+
+                if (_current == null)
+                    return pos;
 
                 var last = _current.Value;
-                x = last.X + last.Width;
-                y = last.Y + offset;
+                pos.X = last.X + last.Width;
+                pos.Y = last.Y;
+                pos.Column = last.Column;
+                pos.Row = last.Line;
 
                 if (last.Holder.Char == 13)
                 {
-                    x = 0;
-                    y += last.Height;
+                    pos.X = 0;
+                    pos.Y += last.Height;
+                    pos.Column = -1;
+                    pos.Row++;
                 }
                 else
                 {
                     var next = _current?.Next?.Value;
                     if (next != null && next.Line > last.Line)
                     {
-                        x = 0;
-                        y = next.Y + offset;
+                        pos.X = 0;
+                        pos.Y = next.Y;
+                        pos.Column = -1;
+                        pos.Row++;
                     }
                 }
 
-                return new Point(x, y);
+                var p = GetVisualPoint(pos.X, pos.Y);
+                pos.X = p.X;
+                pos.Y = p.Y;
+                return pos;
             }
 
             public void OnMouseDown(MouseEventArgs e)
             {
-                var n = _text.First;
-                while (n != null)
+                var pos  = GetRealPoint(e.X, e.Y);
+                foreach (var line in VisualLines)
                 {
-                    if (n.Value.Rect.Contains(e.X, e.Y))
+                    foreach (var n in line)
                     {
-                        if (e.X < n.Value.X + n.Value.Width / 2)
-                            _current = n.Previous;
-                        else
-                            _current = n;
-                        break;
+                        if (n.Value.Rect.Contains(pos))
+                        {
+                            if (pos.X < n.Value.X + n.Value.Width / 2)
+                                _current = n.Previous;
+                            else
+                                _current = n;
+                            break;
+                        }
                     }
-                    n = n.Next;
                 }
+            }
+
+            public T GetChar(int x, int y)
+            {
+                var pos = GetRealPoint(x, y);
+                foreach (var line in VisualLines)
+                {
+                    foreach (var n in line)
+                    {
+                        if (n.Value.Rect.Contains(pos))
+                        {
+                            return n.Value.Holder;
+                        }
+                    }
+                }
+                return default(T);
             }
         }
 
@@ -387,6 +474,8 @@ namespace WinVocaloid
             caretTimer.Interval = SystemInformation.CaretBlinkTime;
             caretTimer.Tick += CaretTimer_Tick;
 
+            VisualLines = Height / (int)LineHeight;
+
             g = Graphics.FromHwnd(this.Handle);
             editor = new LinesEditor<LyricChar>(Width, Height, LineHeight);
         }
@@ -399,9 +488,9 @@ namespace WinVocaloid
 
         private void SetCaret()
         {
-            var p = editor.GetCaret(PinyinFont.Height);
+            var p = editor.GetPostion();
 
-            SetCaretPos(p.X, p.Y);
+            SetCaretPos(p.X, p.Y + PinyinFont.Height);
         }
 
         protected override void OnGotFocus(EventArgs e)
@@ -427,8 +516,7 @@ namespace WinVocaloid
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
-
-
+            editor.OnMouseDown(e);
             SetCaret();
 
             base.OnMouseDown(e);
@@ -436,7 +524,10 @@ namespace WinVocaloid
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            foreach (var line in editor.Lines)
+            var first = editor.VisualLines.FirstOrDefault()?.FirstOrDefault()?.Value;
+            if (first == null)
+                return;
+            foreach (var line in editor.VisualLines)
             {
                 foreach (var n in line)
                 {
@@ -459,10 +550,10 @@ namespace WinVocaloid
 
                     if (!string.IsNullOrWhiteSpace(c.Holder.Pinyin))
                     {
-                        e.Graphics.DrawString(c.Holder.Pinyin, PinyinFont, Brushes.Black, px, c.Y);
+                        e.Graphics.DrawString(c.Holder.Pinyin, PinyinFont, Brushes.Black, px, c.Y - first.Y);
                     }
 
-                    e.Graphics.DrawString(s, Font, Brushes.Black, cx, c.Y + PinyinFont.Height);
+                    e.Graphics.DrawString(s, Font, Brushes.Black, cx, c.Y + PinyinFont.Height - first.Y);
                 }
             }
         }
@@ -564,6 +655,31 @@ namespace WinVocaloid
             //{
             //    Debug.WriteLine((char)m.WParam.ToInt32());
             //}
+        }
+
+        private void LyricsBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                LyricChar ch = editor.GetChar(e.X, e.Y);
+                if (ch == null || ch.CChar == null) 
+                    return;
+                pinyinChoice.Tag = ch;
+                pinyinChoice.Items.Clear();
+                foreach (var py in ch.CChar.Pinyins.Select(s => RemoveTone(s)).Distinct())
+                {
+                    pinyinChoice.Items.Add(py);
+                }
+                pinyinChoice.Show(this, e.Location);
+            }
+        }
+
+        private void pinyinChoice_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            var t = e.ClickedItem;
+            var ch = pinyinChoice.Tag as LyricChar;
+            ch.Pinyin = t.Text;
+            Invalidate();
         }
 
 

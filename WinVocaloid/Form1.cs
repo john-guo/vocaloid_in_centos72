@@ -112,17 +112,12 @@ namespace WinVocaloid
 
         private void toPinYin()
         {
-            foreach (var ch in textBox2.Text)
-            {
-            }
         }
 
 
         private async void button1_Click(object sender, EventArgs e)
         {
             int bpm = Convert.ToInt32(textBox1.Text) * 100;
-
-            
 
             var ip = GetWslIpAddress();
             var channel = new Channel($"{ip}:50051", ChannelCredentials.Insecure);

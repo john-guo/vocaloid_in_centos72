@@ -32,13 +32,10 @@ namespace WinVocaloid
             this.button1 = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.textBox5 = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.lyricsBox1 = new WinVocaloid.LyricsBox();
+            this.musicBox1 = new WinVocaloid.MusicBox();
             this.SuspendLayout();
             // 
             // button1
@@ -68,14 +65,6 @@ namespace WinVocaloid
             this.label1.TabIndex = 2;
             this.label1.Text = "BPM";
             // 
-            // textBox2
-            // 
-            this.textBox2.Location = new System.Drawing.Point(124, 38);
-            this.textBox2.Multiline = true;
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(358, 300);
-            this.textBox2.TabIndex = 3;
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -84,30 +73,6 @@ namespace WinVocaloid
             this.label2.Size = new System.Drawing.Size(41, 12);
             this.label2.TabIndex = 4;
             this.label2.Text = "Lyrics";
-            // 
-            // textBox3
-            // 
-            this.textBox3.Location = new System.Drawing.Point(531, 38);
-            this.textBox3.Multiline = true;
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(358, 300);
-            this.textBox3.TabIndex = 5;
-            // 
-            // textBox4
-            // 
-            this.textBox4.Location = new System.Drawing.Point(124, 364);
-            this.textBox4.Multiline = true;
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(358, 300);
-            this.textBox4.TabIndex = 7;
-            // 
-            // textBox5
-            // 
-            this.textBox5.Location = new System.Drawing.Point(531, 364);
-            this.textBox5.Multiline = true;
-            this.textBox5.Name = "textBox5";
-            this.textBox5.Size = new System.Drawing.Size(358, 300);
-            this.textBox5.TabIndex = 6;
             // 
             // label3
             // 
@@ -120,23 +85,34 @@ namespace WinVocaloid
             // 
             // lyricsBox1
             // 
-            this.lyricsBox1.Location = new System.Drawing.Point(911, 38);
+            this.lyricsBox1.BackColor = System.Drawing.SystemColors.Window;
+            this.lyricsBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lyricsBox1.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.lyricsBox1.Font = new System.Drawing.Font("Courier New", 16F);
+            this.lyricsBox1.ImeMode = System.Windows.Forms.ImeMode.HangulFull;
+            this.lyricsBox1.Location = new System.Drawing.Point(115, 38);
+            this.lyricsBox1.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
             this.lyricsBox1.Name = "lyricsBox1";
+            this.lyricsBox1.PinyinFont = new System.Drawing.Font("Courier New", 10F);
             this.lyricsBox1.Size = new System.Drawing.Size(367, 300);
             this.lyricsBox1.TabIndex = 9;
+            // 
+            // musicBox1
+            // 
+            this.musicBox1.Location = new System.Drawing.Point(115, 385);
+            this.musicBox1.Name = "musicBox1";
+            this.musicBox1.Size = new System.Drawing.Size(367, 319);
+            this.musicBox1.TabIndex = 10;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1324, 749);
+            this.ClientSize = new System.Drawing.Size(577, 749);
+            this.Controls.Add(this.musicBox1);
             this.Controls.Add(this.lyricsBox1);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.textBox4);
-            this.Controls.Add(this.textBox5);
-            this.Controls.Add(this.textBox3);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.textBox2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.button1);
@@ -154,13 +130,10 @@ namespace WinVocaloid
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.TextBox textBox5;
         private System.Windows.Forms.Label label3;
         private LyricsBox lyricsBox1;
+        private MusicBox musicBox1;
     }
 }
 
