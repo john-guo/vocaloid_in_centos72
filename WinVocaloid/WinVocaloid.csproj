@@ -117,12 +117,6 @@
     <Compile Include="LyricsBox.Designer.cs">
       <DependentUpon>LyricsBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="MusicBox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="MusicBox.Designer.cs">
-      <DependentUpon>MusicBox.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">

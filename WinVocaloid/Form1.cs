@@ -110,22 +110,51 @@ namespace WinVocaloid
             return ip;
         }
 
-        private void toPinYin()
+        private int GetNote(char ch)
         {
+            return ch;
+        }
+
+        private int GetBeatTime(int beat, int bpm)
+        {
+            float one = 6000.0f / bpm;
+            return (int)Math.Round(LyricsBox.Beats[beat].factor * one * 1000);
+        }
+
+        private SingRequest GetRequest(int bpm)
+        {
+            StringBuilder sb = new StringBuilder();
+            List<Note> notes = new List<Note>();
+            int start = 0;
+            foreach (var ch in lyricsBox1.Chars)
+            {
+                sb.Append($"{ch.Pinyin} ");
+                int time = GetBeatTime(ch.Beat, bpm);
+                notes.Add(new Note { Note_ = GetNote(ch.Note), Start = start, Duration = time });
+                start += time;
+            }
+            var lyrics = sb.ToString().TrimEnd();
+
+            var request = new SingRequest { Bank = 0, Bpm = bpm, Lyrics = lyrics };
+            request.Notes.AddRange(notes);
+
+            return request;
         }
 
 
         private async void button1_Click(object sender, EventArgs e)
         {
             int bpm = Convert.ToInt32(textBox1.Text) * 100;
+            if (bpm < 2000 || bpm > 30000)
+            {
+                MessageBox.Show("Wrong BPM[20.00,300.00]");
+                return;
+            }
 
             var ip = GetWslIpAddress();
             var channel = new Channel($"{ip}:50051", ChannelCredentials.Insecure);
             var client = new Vocaloid.VocaloidClient(channel);
-            var request = new SingRequest { Bank = 0, Bpm = bpm, Lyrics = "ni ni ni" };
-            request.Notes.Add(new Note { Note_ = 64, Start = 0, Duration = 1000 });
-            request.Notes.Add(new Note { Note_ = 66, Start = 1000, Duration = 1000 });
-            request.Notes.Add(new Note { Note_ = 68, Start = 2000, Duration = 1000 });
+            var request = GetRequest(bpm);
             using (var call = client.Sing(request))
             {
                 var response = call.ResponseStream;
