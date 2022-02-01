@@ -30,6 +30,46 @@ namespace WinVocaloid
                     ("4", 16.0f)
                 };
 
+        public static Dictionary<string, char>  Notes = new Dictionary<string, char>()
+        {
+            ["c"] = (char)(48),
+            ["c#"] = (char)(49),
+            ["d"] = (char)(50),
+            ["d#"] = (char)(51),
+            ["e"] = (char)(52),
+            ["f"] = (char)(53),
+            ["f#"] = (char)(54),
+            ["g"] = (char)(55),
+            ["g#"] = (char)(56),
+            ["a"] = (char)(57),
+            ["a#"] = (char)(58),
+            ["b"] = (char)(59),
+            ["C"] = (char)(60),
+            ["C#"] = (char)(61),
+            ["D"] = (char)(62),
+            ["D#"] = (char)(63),
+            ["E"] = (char)(64),
+            ["F"] = (char)(65),
+            ["F#"] = (char)(66),
+            ["G"] = (char)(67),
+            ["G#"] = (char)(68),
+            ["A"] = (char)(69),
+            ["A#"] = (char)(70),
+            ["B"] = (char)(71),
+            ["1"] = (char)(72),
+            ["1#"] = (char)(73),
+            ["2"] = (char)(74),
+            ["2#"] = (char)(75),
+            ["3"] = (char)(76),
+            ["4"] = (char)(77),
+            ["4#"] = (char)(78),
+            ["5"] = (char)(79),
+            ["5#"] = (char)(80),
+            ["6"] = (char)(81),
+            ["6#"] = (char)(82),
+            ["7"] = (char)(83),
+        };
+
         public const int QuarterNote = 2;
 
         public LyricsBox()
@@ -84,7 +124,13 @@ namespace WinVocaloid
             public char Note { get; set; }
             public int Beat { get; set; }
 
-            public Lazy<ChineseChar> CChar => new Lazy<ChineseChar>(() => new ChineseChar(Char));
+            public Lazy<ChineseChar> CChar => new Lazy<ChineseChar>(() => {
+                if (ChineseChar.IsValidChar(Char)) 
+                {
+                    return new ChineseChar(Char); 
+                }
+                return null; ;
+            });
         }
 
         public interface ILyricChar
@@ -238,6 +284,8 @@ namespace WinVocaloid
             private Font _beatFont;
             private IRender _render;
 
+            private Dictionary<char, string> _noteDisplay;
+
             public LinesEditor(int width, int height, Font charFont, Font pinyinFont, Font noteFont, Font beatFont, IRender render)
             {
                 _text = new LinkedList<CharPos<T>>();
@@ -246,7 +294,7 @@ namespace WinVocaloid
                 Width = width;
                 Height = height;
                 LineHeight = charFont.GetHeight() + pinyinFont.GetHeight() + Math.Max(noteFont.GetHeight(), beatFont.GetHeight());
-                lineSpace = (int)LineHeight;
+                lineSpace = (int)LineHeight + 10;
                 visualCount = Height / lineSpace;
                 StartLine = 0;
 
@@ -255,6 +303,8 @@ namespace WinVocaloid
                 _noteFont = noteFont;
                 _beatFont = beatFont;
                 _render = render;
+
+                _noteDisplay = Notes.ToDictionary(pair => pair.Value, pair => pair.Key);
             }
 
             public List<List<LinkedListNode<CharPos<T>>>> VisualLines
@@ -285,9 +335,13 @@ namespace WinVocaloid
                 Scroll(GetPostion().Row);
             }
 
-            private string GetNote(char note)
+            private string GetDisplayNote(char note)
             {
-                return $"{note}";
+                if (!_noteDisplay.TryGetValue(note, out string ret))
+                {
+                    return $"{note}";
+                }
+                return ret;
             }
 
             private string GetBeat(int beat)
@@ -310,7 +364,7 @@ namespace WinVocaloid
                     {
                         var c = n.Value;
 
-                        render.DrawString(GetNote(c.Holder.Note), _noteFont, Brushes.Black, c.NoteRect.X, c.NoteRect.Y - first.Y);
+                        render.DrawString(GetDisplayNote(c.Holder.Note), _noteFont, Brushes.Black, c.NoteRect.X, c.NoteRect.Y - first.Y);
                         render.DrawString(GetBeat(c.Holder.Beat), _beatFont, Brushes.Black, c.BeatRect.X, c.BeatRect.Y - first.Y);
                         render.DrawString($"{c.Holder.Pinyin}", _pinyinFont, Brushes.Black, c.PinyinRect.X, c.PinyinRect.Y - first.Y);
                         render.DrawString($"{c.Holder.Char}", _charFont, Brushes.Black, c.CharRect.X, c.CharRect.Y - first.Y);
@@ -618,10 +672,11 @@ namespace WinVocaloid
                 }
             }
 
-            public T GetChar(int x, int y, out bool isPinyin)
+            public T GetChar(int x, int y, out bool isPinyin, out bool isNote)
             {
                 var pos = GetRealPoint(x, y);
                 isPinyin = true;
+                isNote = false;
                 foreach (var line in VisualLines)
                 {
                     foreach (var n in line)
@@ -631,6 +686,11 @@ namespace WinVocaloid
 
                         if (n.Value.NoteRect.Contains(pos) || n.Value.BeatRect.Contains(pos))
                         {
+                            if (n.Value.NoteRect.Contains(pos))
+                            {
+                                isNote = true;
+                            }
+
                             isPinyin = false;
                         }
 
@@ -820,12 +880,12 @@ namespace WinVocaloid
                         Debug.WriteLine(lc.CChar.Value.Pinyins.FirstOrDefault());
                         editor.Append(lc);
                     }
-                    else
+                    else if ((ch >= '1' && ch <= '7') || (ch >= 'A' && ch <= 'G') || (ch >= 'a' && ch <= 'g'))
                     {
                         lc = editor.Next;
                         if (lc == null || lc.Char == 13)
                             return;
-                        lc.Note = ch;
+                        lc.Note = CharToNote(ch);
                         lc.Beat = QuarterNote;
                     }
                 }
@@ -879,11 +939,11 @@ namespace WinVocaloid
         {
             if (e.Button == MouseButtons.Right)
             {
-                LyricChar ch = editor.GetChar(e.X, e.Y, out bool pinyin);
+                LyricChar ch = editor.GetChar(e.X, e.Y, out bool pinyin, out bool note);
                 if (ch == null || ch.CChar.Value == null) 
                     return;
 
-                pinyinChoice.Tag = new { Char = ch, Pinyin = pinyin };
+                pinyinChoice.Tag = new { Char = ch, Pinyin = pinyin, Note = note };
                 pinyinChoice.Items.Clear();
                 
                 if (pinyin)
@@ -891,6 +951,13 @@ namespace WinVocaloid
                     foreach (var py in ch.CChar.Value.Pinyins.Select(s => RemoveTone(s)).Distinct())
                     {
                         pinyinChoice.Items.Add(py);
+                    }
+                }
+                else if (note)
+                {
+                    foreach (var bt in Notes)
+                    {
+                        pinyinChoice.Items.Add(bt.Key);
                     }
                 }
                 else
@@ -913,8 +980,11 @@ namespace WinVocaloid
             dynamic tag = pinyinChoice.Tag;
             var ch = tag.Char as LyricChar;
             var pinyin = (bool)tag.Pinyin;
+            var note = (bool)tag.Note;
             if (pinyin)
                 ch.Pinyin = t.Text;
+            else if (note)
+                ch.Note = StringToNote(t.Text);
             else
                 ch.Beat = Array.FindIndex(Beats, tp => tp.title == t.Text);
             Invalidate();
@@ -929,6 +999,21 @@ namespace WinVocaloid
         {
             editor.fromJson(File.ReadAllText(filename));
             Invalidate();
+        }
+
+        private char StringToNote(string str)
+        {
+            if (!Notes.TryGetValue(str, out char note))
+            {
+                return Notes["C"];
+            }
+
+            return note;
+        }
+
+        private char CharToNote(char ch)
+        {
+            return StringToNote($"{ch}");
         }
 
         //public const int WM_IME_COMPOSITION = 0x010F;

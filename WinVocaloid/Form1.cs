@@ -128,6 +128,9 @@ namespace WinVocaloid
             int start = 0;
             foreach (var ch in lyricsBox1.Chars)
             {
+                if (string.IsNullOrWhiteSpace(ch.Pinyin))
+                    continue;
+
                 sb.Append($"{ch.Pinyin} ");
 
                 int time = GetBeatTime(ch.Beat, bpm);
