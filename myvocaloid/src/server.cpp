@@ -85,25 +85,27 @@ class VocaloidService final : public Vocaloid::Service
         header->set_message(ret.message);
         writer->Write(reply);
 
-        auto *chunk = reply.mutable_chunk();
-
-        int bytesize = data_size * sizeof(int16_t);
-        char *bytedata = (char*)data;
-        int offset = 0;
-        while (offset < bytesize)
+        if (ret.result == Yamaha::VOCALOID::VLSModule::kResultSuccess)
         {
-            int count = std::min(CHUNK_SIZE, bytesize - offset);
-            chunk->set_data(bytedata + offset, count);
+            auto *chunk = reply.mutable_chunk();
 
-            std::cout << "Write Offset " << offset << " Count " << count << std::endl;
+            int bytesize = data_size * sizeof(int16_t);
+            char *bytedata = (char*)data;
+            int offset = 0;
+            while (offset < bytesize)
+            {
+                int count = std::min(CHUNK_SIZE, bytesize - offset);
+                chunk->set_data(bytedata + offset, count);
 
-            writer->Write(reply);
-            offset += CHUNK_SIZE;
-        } 
+                std::cout << "Write Offset " << offset << " Count " << count << std::endl;
+
+                writer->Write(reply);
+                offset += CHUNK_SIZE;
+            } 
+            delete[] data;
+        }
 
         delete[] vnotes;
-        delete[] data;
-
         return Status::OK;
     }
 };

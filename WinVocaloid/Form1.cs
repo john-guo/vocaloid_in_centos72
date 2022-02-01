@@ -129,6 +129,7 @@ namespace WinVocaloid
             foreach (var ch in lyricsBox1.Chars)
             {
                 sb.Append($"{ch.Pinyin} ");
+
                 int time = GetBeatTime(ch.Beat, bpm);
                 notes.Add(new Note { Note_ = GetNote(ch.Note), Start = start, Duration = time });
                 start += time;
@@ -182,8 +183,18 @@ namespace WinVocaloid
 
                             ms.Seek(0, SeekOrigin.Begin);
                             using (var stream = new RawSourceWaveStream(ms, new WaveFormat(44100, 16, 1)))
+                            using (var wout = new WaveOutEvent())
                             {
-                                MediaFoundationEncoder.EncodeToMp3(stream, "test.mp3");
+                                wout.Init(stream);
+                                wout.Play();
+
+                                while (wout.PlaybackState == PlaybackState.Playing)
+                                {
+                                    await Task.Delay(1000);
+                                }
+
+                                stream.Position = 0;
+                                MediaFoundationEncoder.EncodeToMp3(stream, "song.mp3");
                             }
                         }
 
@@ -195,6 +206,32 @@ namespace WinVocaloid
             }
 
             await channel.ShutdownAsync();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            var dialog = new SaveFileDialog()
+            {
+                Filter = "JSON|*.json",
+                AddExtension = true,
+            };
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                lyricsBox1.SaveFile(dialog.FileName);
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            var dialog = new OpenFileDialog()
+            {
+                Filter = "JSON|*.json",
+                AddExtension = true,
+            };
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                lyricsBox1.LoadFile(dialog.FileName);
+            }
         }
     }
 }

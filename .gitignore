@@ -37,3 +37,6 @@ myvocaloid/server
 WinVocaloid/bin/
 WinVocaloid/.vs/
 WinVocaloid/packages/
+myvocaloid/include/protos/
+myvocaloid/bin/
+.vs/

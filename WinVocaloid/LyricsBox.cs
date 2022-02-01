@@ -10,6 +10,8 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using Microsoft.International.Converters.PinYinConverter;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace WinVocaloid
 {
@@ -82,7 +84,7 @@ namespace WinVocaloid
             public char Note { get; set; }
             public int Beat { get; set; }
 
-            public ChineseChar CChar { get; set; }
+            public Lazy<ChineseChar> CChar => new Lazy<ChineseChar>(() => new ChineseChar(Char));
         }
 
         public interface ILyricChar
@@ -102,6 +104,9 @@ namespace WinVocaloid
 
         class CharPos<T> where T : ILyricChar
         {
+            public CharPos()
+            { }
+
             public CharPos(T ch, SizeF charSize, SizeF pinyinSize, SizeF noteSize, SizeF beatSize)
             {
                 Type = CharPosType.None;
@@ -130,21 +135,21 @@ namespace WinVocaloid
                 CharArea = new Rectangle(x, y, (int)charSize.Width, (int)charSize.Height);
             }
 
-            public CharPosType Type { get; private set; }
-            public T Holder { get; private set; }
+            public CharPosType Type { get; set; }
+            public T Holder { get; set; }
 
-            public int Width { get; private set; }
-            public int Height { get; private set; }
+            public int Width { get; set; }
+            public int Height { get; set; }
 
             public int X { get; set; }
             public int Y { get; set; }
             public int Line { get; set; }
             public int Column { get; set; }
 
-            public Rectangle NoteArea { get; private set; }
-            public Rectangle BeatArea { get; private set; }
-            public Rectangle PinyinArea { get; private set; }
-            public Rectangle CharArea { get; private set; }
+            public Rectangle NoteArea { get; set; }
+            public Rectangle BeatArea { get; set; }
+            public Rectangle PinyinArea { get; set; }
+            public Rectangle CharArea { get; set; }
 
             public Rectangle NoteRect
             {
@@ -662,6 +667,18 @@ namespace WinVocaloid
                     }
                 }
             }
+
+            public string toJson()
+            {
+                return JsonConvert.SerializeObject(_text, Formatting.Indented);
+            }
+
+            public void fromJson(string json)
+            {
+                _text = JsonConvert.DeserializeObject<LinkedList<CharPos<T>>>(json);
+                _current = _text.First;
+                GenLines();
+            }
         }
 
 
@@ -797,11 +814,10 @@ namespace WinVocaloid
                     LyricChar lc;
                     if (ChineseChar.IsValidChar(ch))
                     {
-                        var cchar = new ChineseChar(ch);
-                        var pinyin = RemoveTone(cchar.Pinyins.FirstOrDefault());
-
-                        lc = new LyricChar(){ Char = ch, CChar = cchar, Pinyin = pinyin };
-                        Debug.WriteLine(cchar.Pinyins.FirstOrDefault());
+                        lc = new LyricChar(){ Char = ch };
+                        var pinyin = RemoveTone(lc.CChar.Value.Pinyins.FirstOrDefault());
+                        lc.Pinyin = pinyin;
+                        Debug.WriteLine(lc.CChar.Value.Pinyins.FirstOrDefault());
                         editor.Append(lc);
                     }
                     else
@@ -842,10 +858,8 @@ namespace WinVocaloid
                     LyricChar lc;
                     if (ChineseChar.IsValidChar(ch))
                     {
-                        var cchar = new ChineseChar(ch);
-                        var pinyin = RemoveTone(cchar.Pinyins.FirstOrDefault());
-
-                        lc = new LyricChar() { Char = ch, CChar = cchar, Pinyin = pinyin };
+                        lc = new LyricChar() { Char = ch };
+                        var pinyin = RemoveTone(lc.CChar.Value.Pinyins.FirstOrDefault());
                     }
                     else if (ch == 13)
                     {
@@ -866,7 +880,7 @@ namespace WinVocaloid
             if (e.Button == MouseButtons.Right)
             {
                 LyricChar ch = editor.GetChar(e.X, e.Y, out bool pinyin);
-                if (ch == null || ch.CChar == null) 
+                if (ch == null || ch.CChar.Value == null) 
                     return;
 
                 pinyinChoice.Tag = new { Char = ch, Pinyin = pinyin };
@@ -874,7 +888,7 @@ namespace WinVocaloid
                 
                 if (pinyin)
                 {
-                    foreach (var py in ch.CChar.Pinyins.Select(s => RemoveTone(s)).Distinct())
+                    foreach (var py in ch.CChar.Value.Pinyins.Select(s => RemoveTone(s)).Distinct())
                     {
                         pinyinChoice.Items.Add(py);
                     }
@@ -906,6 +920,16 @@ namespace WinVocaloid
             Invalidate();
         }
 
+        public void SaveFile(string filename)
+        {
+            File.WriteAllText(filename, editor.toJson());
+        }
+
+        public void LoadFile(string filename)
+        {
+            editor.fromJson(File.ReadAllText(filename));
+            Invalidate();
+        }
 
         //public const int WM_IME_COMPOSITION = 0x010F;
         //public const int WM_IME_CHAR = 0x0286;
